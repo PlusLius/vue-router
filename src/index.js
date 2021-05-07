@@ -39,15 +39,16 @@ export default class VueRouter {
   afterHooks: Array<?AfterNavigationHook>
 
   constructor (options: RouterOptions = {}) {
-    this.app = null
-    this.apps = []
-    this.options = options
-    this.beforeHooks = []
-    this.resolveHooks = []
-    this.afterHooks = []
-    this.matcher = createMatcher(options.routes || [], this)
+    this.app = null // 其中 this.app 表示根 Vue 实例
+    this.apps = [] // this.apps 保存持有 $options.router 属性的 Vue 实例
+    this.options = options // this.options 保存传入的路由配置
+    this.beforeHooks = [] // 表示一些钩子函数，
+    this.resolveHooks = [] // 表示一些钩子函数，
+    this.afterHooks = [] // 表示一些钩子函数，
+    this.matcher = createMatcher(options.routes || [], this) // this.matcher 表示路由匹配器，
 
     let mode = options.mode || 'hash'
+    // this.fallback 表示在浏览器不支持 history.pushState 的情况下，根据传入的 fallback 配置参数，决定是否回退到hash模式，
     this.fallback =
       mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
@@ -56,11 +57,11 @@ export default class VueRouter {
     if (!inBrowser) {
       mode = 'abstract'
     }
-    this.mode = mode
-
+    this.mode = mode // this.mode 表示路由创建的模式，
+// 它是根据 this.mode 的不同实现不同，它有 History 基类，然后不同的 history 实现都是继承 History。
     switch (mode) {
       case 'history':
-        this.history = new HTML5History(this, options.base)
+        this.history = new HTML5History(this, options.base) // this.history 表示路由历史的具体的实现实例
         break
       case 'hash':
         this.history = new HashHistory(this, options.base, this.fallback)
@@ -90,7 +91,18 @@ export default class VueRouter {
         `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
           `before creating root instance.`
       )
-
+// beforeCreate() {
+//   if (isDef(this.$options.router)) {
+//     // ...
+//     this._router = this.$options.router
+//     this._router.init(this)
+//     // ...
+//   }
+// } 
+//   init 的逻辑很简单，它传入的参数是 Vue 实例，然后存储到 this.apps 中；
+//   只有根 Vue 实例会保存到 this.app 中，并且会拿到当前的 this.history，
+//   根据它的不同类型来执行不同逻辑，由于我们平时使用 hash 路由多一些，所以我们先看这部分逻辑，
+//   先定义了 setupHashListener 函数，接着执行了 history.transitionTo 方法，它是定义在 History 基类中，
     this.apps.push(app)
 
     // set up app destroyed handler
@@ -287,5 +299,6 @@ VueRouter.NavigationFailureType = NavigationFailureType
 VueRouter.START_LOCATION = START
 
 if (inBrowser && window.Vue) {
+  // 在浏览器环境自动调用Vue.use(VueRouter)
   window.Vue.use(VueRouter)
 }
