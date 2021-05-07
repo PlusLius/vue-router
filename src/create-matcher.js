@@ -16,11 +16,19 @@ export type Matcher = {
   addRoute: (parentNameOrRoute: string | RouteConfig, route?: RouteConfig) => void;
   getRoutes: () => Array<RouteRecord>;
 };
+// createMatcher 接收 2 个参数，一个是 router，它是我们 new VueRouter 返回的实例，一个是 routes，它是用户定义的路由配置
+// const Foo = { template: '<div>foo</div>' }
+// const Bar = { template: '<div>bar</div>' }
 
+// const routes = [
+//   { path: '/foo', component: Foo },
+//   { path: '/bar', component: Bar }
+// ]
 export function createMatcher (
-  routes: Array<RouteConfig>,
-  router: VueRouter
+  routes: Array<RouteConfig>, //一个是 routes，它是用户定义的路由配置
+  router: VueRouter //  一个是 router，它是我们 new VueRouter 返回的实例，
 ): Matcher {
+//   createMathcer 首先执行的逻辑是 const { pathList, pathMap, nameMap } = createRouteMap(routes) 创建一个路由映射表
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
 
   function addRoutes (routes) {
