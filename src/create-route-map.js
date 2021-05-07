@@ -3,7 +3,9 @@
 import Regexp from 'path-to-regexp'
 import { cleanPath } from './util/path'
 import { assert, warn } from './util/warn'
-
+// createRouteMap 函数的目标是把用户的路由配置转换成一张路由映射表，
+// 它包含 3 个部分，pathList 存储所有的 path，pathMap 表示一个 path 到 RouteRecord 的映射关系，
+// 而 nameMap 表示 name 到 RouteRecord 的映射关系
 export function createRouteMap (
   routes: Array<RouteConfig>,
   oldPathList?: Array<string>,
@@ -16,12 +18,12 @@ export function createRouteMap (
   nameMap: Dictionary<RouteRecord>
 } {
   // the path list is used to control path matching priority
-  const pathList: Array<string> = oldPathList || []
+  const pathList: Array<string> = oldPathList || [] // pathList 存储所有的 path，
   // $flow-disable-line
-  const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
+  const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null) // 表示一个 path 到 RouteRecord 的映射关系，
   // $flow-disable-line
-  const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
-
+  const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null) // 而 nameMap 表示 name 到 RouteRecord 的映射关系
+  // 它的创建是通过遍历 routes 为每一个 route 执行 addRouteRecord 方法生成一条记录
   routes.forEach(route => {
     addRouteRecord(pathList, pathMap, nameMap, route, parentRoute)
   })
@@ -53,7 +55,7 @@ export function createRouteMap (
     nameMap
   }
 }
-
+// path 是规范化后的路径，它会根据 parent 的 path 做计算；regex 是一个正则表达式的扩展，它利用了path-to-regexp 这个工具库，把 path 解析成一个正则表达式的扩展，
 function addRouteRecord (
   pathList: Array<string>,
   pathMap: Dictionary<RouteRecord>,
