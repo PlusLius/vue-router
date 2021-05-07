@@ -9,9 +9,10 @@ import { createRouteMap } from './create-route-map'
 import { normalizeLocation } from './util/location'
 import { decode } from './util/query'
 
+// Matcher match 和 addRoutes，在上一节我们接触到了
 export type Matcher = {
-  match: (raw: RawLocation, current?: Route, redirectedFrom?: Location) => Route;
-  addRoutes: (routes: Array<RouteConfig>) => void;
+  match: (raw: RawLocation, current?: Route, redirectedFrom?: Location) => Route; //  match 方法，顾名思义它是做匹配，那么匹配的是什么，在介绍之前，我们先了解路由中重要的 2 个概念，Loaction 和 Route
+  addRoutes: (routes: Array<RouteConfig>) => void; // 
   addRoute: (parentNameOrRoute: string | RouteConfig, route?: RouteConfig) => void;
   getRoutes: () => Array<RouteRecord>;
 };
