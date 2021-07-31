@@ -171,23 +171,30 @@ export class History {
 
     const queue: Array<?NavigationGuard> = [].concat(
       // in-component leave guards
+      // 在失活的组件里调用离开守卫。
       extractLeaveGuards(deactivated),
       // global before hooks
+      // 调用全局的 beforeEach 守卫。
       this.router.beforeHooks,
       // in-component update hooks
+      // 在重用的组件里调用 beforeRouteUpdate 守卫
       extractUpdateHooks(updated),
       // in-config enter guards
+      // 在激活的路由配置里调用 beforeEnter。
       activated.map(m => m.beforeEnter),
       // async components
+      // 解析异步路由组件。
       resolveAsyncComponents(activated)
     )
-
+// iterator 函数逻辑很简单，它就是去执行每一个 导航守卫 hook
+//     并传入 route、current 和匿名函数，这些参数对应文档中的 to、from、next
     const iterator = (hook: NavigationGuard, next) => {
       if (this.pending !== route) {
         return abort(createNavigationCancelledError(current, route))
       }
       try {
         hook(route, current, (to: any) => {
+//                   当执行了匿名函数，会根据一些条件执行 abort 或 next
           if (to === false) {
             // next(false) -> abort navigation, ensure current URL
             this.ensureURL(true)
@@ -208,6 +215,7 @@ export class History {
               this.push(to)
             }
           } else {
+//             只有执行 next 的时候，才会前进到下一个导航守卫钩子函数中，这也就是为什么官方文档会说只有执行 next 方法来 resolve 这个钩子函数
             // confirm transition and pass on the value
             next(to)
           }
@@ -309,6 +317,7 @@ function extractGuards (
   bind: Function,
   reverse?: boolean
 ): Array<?Function> {
+//     这里用到了 flatMapComponents 方法去从 records 中获取所有的导航
   const guards = flatMapComponents(records, (def, instance, match, key) => {
     const guard = extractGuard(def, name)
     if (guard) {
@@ -332,6 +341,7 @@ function extractGuard (
 }
 
 function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> {
+//   它内部调用了 extractGuards 的通用方法，可以从 RouteRecord 数组中提取各个阶段的守卫：
   return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true)
 }
 
