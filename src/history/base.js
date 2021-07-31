@@ -318,17 +318,18 @@ function extractGuards (
   reverse?: boolean
 ): Array<?Function> {
 //     这里用到了 flatMapComponents 方法去从 records 中获取所有的导航
+//     那么对于 extractGuards 中 flatMapComponents 的调用，执行每个 fn 的时候，通过 extractGuard(def, name) 获取到组件中对应 name 的导航守卫
   const guards = flatMapComponents(records, (def, instance, match, key) => {
-    const guard = extractGuard(def, name)
+    const guard = extractGuard(def, name) // 获取到 guard 后
     if (guard) {
       return Array.isArray(guard)
         ? guard.map(guard => bind(guard, instance, match, key))
-        : bind(guard, instance, match, key)
+        : bind(guard, instance, match, key) // 还会调用 bind 方法把组件的实例 instance 作为函数执行的上下文绑定到 guard 上，
     }
   })
   return flatten(reverse ? guards.reverse() : guards)
 }
-
+// 通过 extractGuard(def, name) 获取到组件中对应 name 的导航守卫
 function extractGuard (
   def: Object | Function,
   key: string
@@ -348,7 +349,7 @@ function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> 
 function extractUpdateHooks (updated: Array<RouteRecord>): Array<?Function> {
   return extractGuards(updated, 'beforeRouteUpdate', bindGuard)
 }
-
+// 那么对于 extractLeaveGuards(deactivated) 而言，获取到的就是所有失活组件中定义的 beforeRouteLeave 钩子函数。
 function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
   if (instance) {
     return function boundRouteGuard () {
