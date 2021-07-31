@@ -155,7 +155,8 @@ export default class VueRouter {
       })
     })
   }
-
+// 当用户使用 router.beforeEach 注册了一个全局守卫，就会往 router.beforeHooks 添加一个钩子函数
+// 这样 this.router.beforeHooks 获取的就是用户注册的全局 beforeEach 守卫。
   beforeEach (fn: Function): Function {
     return registerHook(this.beforeHooks, fn)
   }
@@ -280,7 +281,9 @@ export default class VueRouter {
 }
 
 function registerHook (list: Array<any>, fn: Function): Function {
+// 给路由钩子栈中添加钩子函数
   list.push(fn)
+  // 再次调用从该位置删除
   return () => {
     const i = list.indexOf(fn)
     if (i > -1) list.splice(i, 1)
