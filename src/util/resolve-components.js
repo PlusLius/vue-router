@@ -69,12 +69,14 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
     if (!hasAsync) next()
   }
 }
-
+// flatMapComponents 的作用就是返回一个数组，数组的元素是从 matched 里获取到所有组件的 key，然后返回 fn 函数执行的结果，
 export function flatMapComponents (
   matched: Array<RouteRecord>,
   fn: Function
 ): Array<?Function> {
+//   flatten 作用是把二维数组拍平成一维
   return flatten(matched.map(m => {
+//   数组的元素是从 matched 里获取到所有组件的 key, 然后返回 fn 函数执行的结果，
     return Object.keys(m.components).map(key => fn(
       m.components[key],
       m.instances[key],
