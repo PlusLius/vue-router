@@ -181,9 +181,11 @@ export class History {
       extractUpdateHooks(updated),
       // in-config enter guards
       // 在激活的路由配置里调用 beforeEnter。
+//       第四步是执行 activated.map(m => m.beforeEnter)，获取的是在激活的路由配置中定义的 beforeEnter 函数。
       activated.map(m => m.beforeEnter),
       // async components
       // 解析异步路由组件。
+//       第五步是执行 resolveAsyncComponents(activated) 解析异步组件，先来看一下 resolveAsyncComponents 的定义，
       resolveAsyncComponents(activated)
     )
 // iterator 函数逻辑很简单，它就是去执行每一个 导航守卫 hook
@@ -345,8 +347,9 @@ function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> 
 //   它内部调用了 extractGuards 的通用方法，可以从 RouteRecord 数组中提取各个阶段的守卫：
   return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true)
 }
-
+// 和 extractLeaveGuards(deactivated) 类似，extractUpdateHooks(updated) 获取到的就是所有重用的组件中定义的 beforeRouteUpdate 钩子函数。
 function extractUpdateHooks (updated: Array<RouteRecord>): Array<?Function> {
+  // ，extractUpdateHooks(updated) 获取到的就是所有重用的组件中定义的 beforeRouteUpdate 钩子函数
   return extractGuards(updated, 'beforeRouteUpdate', bindGuard)
 }
 // 那么对于 extractLeaveGuards(deactivated) 而言，获取到的就是所有失活组件中定义的 beforeRouteLeave 钩子函数。
