@@ -230,7 +230,10 @@ export class History {
     runQueue(queue, iterator, () => {
       // wait until async components are resolved before
       // extracting in-component enter guards
+//       这样在 resolveAsyncComponents(activated) 解析完所有激活的异步组件后，我们就可以拿到这一次所有激活的组件。这样我们在做完这 5 步后又做了一些事情
+//       在被激活的组件里调用 beforeRouteEnter。
       const enterGuards = extractEnterGuards(activated)
+//       调用全局的 beforeResolve 守卫。
       const queue = enterGuards.concat(this.router.resolveHooks)
       runQueue(queue, iterator, () => {
         if (this.pending !== route) {
@@ -239,7 +242,9 @@ export class History {
         this.pending = null
         onComplete(route)
         if (this.router.app) {
+//           在根路由组件重新渲染后，遍历 postEnterCbs 执行回调，每一个回调执行的时候，其实是执行 poll(cb, match.instances, key, isValid) 方法，因为考虑到一些了路由组件被套 transition 組件在一些缓动模式下不一定能拿到实例，所以用一个轮询方法不断去判断，直到能获取到组件实例，再去调用 cb，并把组件实例作为参数传入，这就是我们在回调函数中能拿到组件实例的原因。
           this.router.app.$nextTick(() => {
+            // 调用全局的 afterEach 钩子。
             handleRouteEntered(route)
           })
         }
@@ -360,7 +365,9 @@ function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
     }
   }
 }
-
+// extractEnterGuards 函数的实现也是利用了 extractGuards 方法提取组件中的 beforeRouteEnter 导航钩子函数，和之前不同的是 bind 方法的不同。
+// 文档中特意强调了 beforeRouteEnter 钩子函数中是拿不到组件实例的，因为当守卫执行前，组件实例还没被创建，
+// 但是我们可以通过传一个回调给 next 来访问组件实例。在导航被确认的时候执行回调，并且把组件实例作为回调方法的参数
 function extractEnterGuards (
   activated: Array<RouteRecord>
 ): Array<?Function> {
@@ -372,7 +379,11 @@ function extractEnterGuards (
     }
   )
 }
-
+// 在 bindEnterGuard 函数中，返回的是 routeEnterGuard 函数
+// 所以在执行 iterator 中的 hook 函数的时候，就相当于执行 routeEnterGuard 函数，
+// 那么就会执行我们定义的导航守卫 guard 函数，并且当这个回调函数执行的时候，
+// 首先执行 next 函数 rersolve 当前导航钩子，然后把回调函数的参数，
+// 它也是一个回调函数用 cbs 收集起来，其实就是收集到外面定义的 postEnterCbs 中
 function bindEnterGuard (
   guard: NavigationGuard,
   match: RouteRecord,
