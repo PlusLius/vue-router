@@ -3,7 +3,10 @@
 import { _Vue } from '../install'
 import { warn } from './warn'
 import { isError } from '../util/errors'
-
+// resolveAsyncComponents 返回的是一个导航守卫函数，有标准的 to、from、next 参数。它的内部实现很简单，
+// 利用了 flatMapComponents 方法从 matched 中获取到每个组件的定义，判断如果是异步组件，则执行异步组件加载逻辑，
+// 这块和我们之前分析 Vue 加载异步组件很类似，加载成功后会执行 match.components[key] = resolvedDef 
+// 把解析好的异步组件放到对应的 components 上，并且执行 next 函数。
 export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
   return (to, from, next) => {
     let hasAsync = false
